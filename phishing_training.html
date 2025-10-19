@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trénink Rozpoznávání Phishingu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            padding: 20px;
+            color: #0f172a;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+        }
+        
+        h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+        
+        .subtitle {
+            font-size: 1.3em;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .score-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .score-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .score-label {
+            font-size: 0.85em;
+            color: #64748b;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .score-value {
+            font-size: 2.5em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .score-value.incorrect-color {
+            background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .example-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .example-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+        
+        .example-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .example-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .example-type {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.85em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        .example-number {
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.9em;
+        }
+        
+        .example-content {
+            margin-bottom: 25px;
+            line-height: 1.8;
+        }
+        
+        .sender {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+        
+        .subject {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #0f172a;
+        }
+        
+        .message {
+            color: #475569;
+            white-space: pre-line;
+            line-height: 1.7;
+        }
+        
+        .link {
+            color: #3b82f6;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 16px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .legit-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        
+        .legit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .phishing-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+        
+        .phishing-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            display: none;
+            border-left: 4px solid;
+        }
+        
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .correct {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #10b981;
+        }
+        
+        .incorrect {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #ef4444;
+        }
+        
+        .explanation {
+            margin-top: 12px;
+            font-weight: normal;
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #334155;
+        }
+        
+        .highlight {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+        
+        .highlight-red {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .highlight-green {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .finish-panel {
+            background: white;
+            padding: 50px 30px;
+            border-radius: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            text-align: center;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .finish-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+        
+        .finish-panel.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        .finish-panel h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .final-score {
+            font-size: 4em;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin: 30px 0;
+        }
+        
+        .final-message {
+            font-size: 1.2em;
+            color: #475569;
+            margin-bottom: 30px;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            padding: 18px 50px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        /* Quiz styles */
+        .quiz-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .quiz-header h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .quiz-header p {
+            color: #64748b;
+            font-size: 1.1em;
+        }
+
+        .quiz-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+
+        .quiz-question-number {
+            font-weight: 700;
+            color: #3b82f6;
+            font-size: 1.1em;
+        }
+
+        .quiz-score {
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .quiz-question {
+            margin-bottom: 20px;
+        }
+
+        .quiz-question h3 {
+            font-size: 1.2em;
+            color: #0f172a;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 1em;
+            text-align: left;
+        }
+
+        .quiz-option:hover:not(.selected):not(.disabled) {
+            border-color: #3b82f6;
+            background: #f0f9ff;
+            transform: translateX(5px);
+        }
+
+        .quiz-option.selected {
+            border-color: #3b82f6;
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            font-weight: 600;
+        }
+
+        .quiz-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .quiz-option.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .quiz-feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct-feedback {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .quiz-feedback.incorrect-feedback {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .quiz-feedback strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .quiz-next-btn {
+            margin-top: 20px;
+            padding: 14px 30px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+            width: 100%;
+        }
+
+        .quiz-next-btn.show {
+            display: block;
+        }
+
+        .quiz-next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .quiz-results {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+
+        .quiz-results.show {
+            display: block;
+        }
+
+        .quiz-results h3 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quiz-final-score {
+            font-size: 3em;
+            font-weight: 800;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .quiz-continue-btn {
+            margin-top: 20px;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .quiz-continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .examples-locked {
+            opacity: 0.5;
+            pointer-events: none;
+            filter: blur(2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Trénink Rozpoznávání Phishingu</h1>
+            <p class="subtitle">Dokážete odhalit podvodníky? Otestujte své schopnosti!</p>
+        </header>
+        
+        <div class="score-panel">
+            <div class="score-item">
+                <div class="score-label">Správně</div>
+                <div class="score-value" id="correct">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Špatně</div>
+                <div class="score-value incorrect-color" id="incorrect">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Zbývá</div>
+                <div class="score-value" id="remaining">20</div>
+            </div>
+        </div>
+
+        <!-- Quiz Container - Insert before the examples div -->
+        <div class="quiz-container" id="quizContainer">
+            <div class="quiz-header">
+                <h2>📚 Základní Kvíz o Phishingu</h2>
+                <p>Před začátkem tréninku otestujte své znalosti!</p>
+            </div>
+            
+            <div class="quiz-progress">
+                <div class="quiz-question-number">
+                    Otázka <span id="currentQuestion">1</span> z 10
+                </div>
+                <div class="quiz-score">
+                    Správně: <span id="quizScore">0</span>/10
+                </div>
+            </div>
+            
+            <div class="quiz-question" id="quizQuestion">
+                <!-- Question will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="quiz-feedback" id="quizFeedback">
+                <!-- Feedback will be inserted here -->
+            </div>
+            
+            <button class="quiz-next-btn" id="quizNextBtn">Další Otázka →</button>
+            
+            <div class="quiz-results" id="quizResults">
+                <h3>🎉 Kvíz Dokončen!</h3>
+                <div class="quiz-final-score" id="quizFinalScore"></div>
+                <p id="quizResultMessage"></p>
+                <button class="quiz-continue-btn" id="quizContinueBtn">Pokračovat na Příklady</button>
+            </div>
+        </div>
+        
+        <div id="examples" class="examples-locked"></div>
+        
+        <div class="finish-panel" id="finishPanel">
+            <h2>🎉 Trénink Dokončen!</h2>
+            <div class="final-score" id="finalScore"></div>
+            <p class="final-message" id="finalMessage"></p>
+            <button class="restart-btn" onclick="location.reload()">Začít Znovu</button>
+        </div>
+    </div>
+    
+    <script>
+        /*
+        const examples = [
+            {
+                type: "EMAIL",
+                sender: "Od: notifications@amazon.com",
+                subject: "Vaše objednávka #123-4567890-1234567 byla odeslána",
+                message: "Dobrý den,\n\nMáme dobré zprávy! Vaše objednávka byla odeslána a je na cestě k vám.\n\nDetaily objednávky:\n- Bezdrátová sluchátka\n- Předpokládané doručení: 22. října 2025\n\nSledovat zásilku: [Sledovat balík]\n\nDěkujeme, že nakupujete u nás!\n\nZákaznický servis Amazon",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ email. Má správné formátování, realistický formát čísla objednávky, rozumný časový rámec doručení a nevytváří nátlak ani nežádá osobní informace.",
+                highlights: [
+                    {text: "notifications@amazon.com", type: "green", reason: "Oficiální doména Amazon"},
+                    {text: "#123-4567890-1234567", type: "green", reason: "Správný formát čísla objednávky Amazon"},
+                    {text: "22. října 2025", type: "green", reason: "Realistický časový rámec"}
+                ]
+            },
+            {
+                type: "SMS",
+                sender: "Od: +420-XXX-BANKA",
+                subject: "",
+                message: "NALÉHAVÉ: Váš účet byl ZABLOKOVÁN kvůli podezřelé aktivitě. Ověřte svou identitu okamžitě na: bezpecna-banka-overeni.net/potvrzeni nebo bude váš účet do 24 hodin TRVALE UZAVŘEN!",
+                isPhishing: true,
+                explanation: "Toto je PHISHING. Varovné signály: Vytváří extrémní naléhavost (24 hodin), používá výhružný jazyk (ZABLOKOVÁN, UZAVŘEN), podezrélá doména (není oficiální doména banky), a banky neblokují účty přes SMS bez předchozího kontaktu.",
+                highlights: [
+                    {text: "NALÉHAVÉ", type: "red", reason: "Tlak a urgence - typická taktika phishingu"},
+                    {text: "ZABLOKOVÁN", type: "red", reason: "Výhružný jazyk psaný velkými písmeny"},
+                    {text: "bezpecna-banka-overeni.net", type: "red", reason: "Podezrélá doména - není oficiální doména banky"},
+                    {text: "do 24 hodin", type: "red", reason: "Umělá časová tíseň"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: support@paypa1-security.com",
+                subject: "Nutná akce: Zjištěno neobvyklé přihlášení",
+                message: "Vážený zákazníku,\n\nZjistili jsme neobvyklý pokus o přihlášení z Ruska. Pro ochranu vašeho účtu prosím ověřte svou identitu:\n\nKlikněte pro ověření: http://paypal-bezpecne-prihlaseni.com/overit\n\nNepodaří-li se ověření do 6 hodin, bude váš účet trvale pozastaven.\n\nBezpečnostní tým PayPal",
+                isPhishing: true,
+                explanation: "Toto je PHISHING. Varovné signály: Doména odesílatele používá '1' místo 'l' (paypa1), podezřelá externí URL, vytváří extrémní naléhavost (6 hodin), hrozí pozastavením účtu, a PayPal nikdy nežádá o ověření přes odkazy v emailu.",
+                highlights: [
+                    {text: "paypa1-security.com", type: "red", reason: "Falešná doména - '1' místo 'l' v PayPal"},
+                    {text: "paypal-bezpecne-prihlaseni.com", type: "red", reason: "Podezrélá externí URL - není oficiální PayPal"},
+                    {text: "do 6 hodin", type: "red", reason: "Extrémní časový tlak"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: team@github.com",
+                subject: "Bezpečnostní upozornění: Nové přihlášení z Chrome na Windows",
+                message: "Ahoj,\n\nByl zjištěn nový pokus o přihlášení k vašemu účtu:\n\n- Zařízení: Chrome na Windows\n- Lokace: Praha, Česká republika\n- Čas: 19. října 2025, 10:35 UTC\n\nPokud jste to byli vy, není třeba žádná akce. Pokud jste to nebyli vy, zabezpečte svůj účet okamžitě:\n\nZkontrolujte nastavení bezpečnosti účtu: https://github.com/settings/security\n\nGitHub Security",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ. Oficiální doména GitHubu, poskytuje konkrétní detaily přihlášení, rozumná lokace, směřuje na oficiální nastavení GitHubu (github.com/settings), profesionální formátování a legitimní bezpečnostní upozornění obsahují detailní informace.",
+                highlights: [
+                    {text: "team@github.com", type: "green", reason: "Oficiální doména GitHub"},
+                    {text: "https://github.com/settings/security", type: "green", reason: "Oficiální GitHub URL pro nastavení"},
+                    {text: "Praha, Česká republika", type: "green", reason: "Konkrétní lokační údaje"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: ceo@vasefirma-info.com",
+                subject: "URGENTNÍ: Potřebuji Vaši Pomoc",
+                message: "Ahoj,\n\nJsem na schůzce a vybila se mi baterie. Potřebuji, abyste urgentně zakoupil/a 5x dárkovou kartu po 5 000 Kč pro klientský dárek. Prosím kupte je a pošlete mi kódy. Vrátím vám to ještě dnes.\n\nVelmi urgentní!\n\nMichael Novák\nGenerální ředitel",
+                isPhishing: true,
+                explanation: "Toto je PHISHING (CEO podvod/Business Email Compromise). Varovné signály: Podezřelá doména (není skutečná doména firmy), neobvyklý požadavek na dárkové karty, vytváří naléhavost, neobvyklý komunikační styl, žádná metoda ověření. Vždy ověřte neobvyklé požadavky známými kontaktními metodami.",
+                highlights: [
+                    {text: "vasefirma-info.com", type: "red", reason: "Podezrélá doména - pravděpodobně ne oficiální"},
+                    {text: "URGENTNÍ", type: "red", reason: "Umělý tlak"},
+                    {text: "dárkovou kartu po 5 000 Kč", type: "red", reason: "Neobvyklý požadavek - častá taktika podvodníků"}
+                ]
+            }
+        ];
+        */
+       const examples = [
+            {
+                type: "EMAIL",
+                sender: "Od: notifications@amazon.com",
+                subject: "Vaše objednávka #123-4567890-1234567 byla odeslána",
+                message: "Dobrý den,\n\nMáme dobré zprávy! Vaše objednávka byla odeslána a je na cestě k vám.\n\nDetaily objednávky:\n- Bezdrátová sluchátka\n- Předpokládané doručení: 22. října 2025\n\nSledovat zásilku: [Sledovat balík]\n\nDěkujeme, že nakupujete u nás!\n\nZákaznický servis Amazon",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ email. Má správné formátování, realistický formát čísla objednávky, rozumný časový rámec doručení a nevytváří nátlak ani nežádá osobní informace.",
+                highlights: [
+                    {text: "notifications@amazon.com", type: "green", reason: "Oficiální doména Amazon"},
+                    {text: "#123-4567890-1234567", type: "green", reason: "Správný formát čísla objednávky Amazon"},
+                    {text: "22. října 2025", type: "green", reason: "Realistický časový rámec"}
+                ]
+            },
+            {
+                type: "SMS",
+                sender: "Od: CeskaPosta",
+                subject: "",
+                message: "Vase balicek nelze dorucit. Doplatek 28 Kc. Potvrd'te doruceni na: ceskaposta-doruceni.com/ID48392",
+                isPhishing: true,
+                explanation: "Toto je PHISHING. Klasický podvod imitující Českou poštu. Varovné signály: Neoficiální doména (ceskaposta-doruceni.com místo ceskaposta.cz), nízká částka doplatku (láká na kliknutí), chybějící diakritika, žádost o 'potvrzení' přes podezřelý odkaz. Česká pošta nikdy neposílá platební odkazy přes SMS.",
+                highlights: [
+                    {text: "ceskaposta-doruceni.com", type: "red", reason: "Falešná doména - není ceskaposta.cz"},
+                    {text: "Doplatek 28 Kc", type: "red", reason: "Nízká částka k vylákání kliknutí"},
+                    {text: "Potvrd'te", type: "red", reason: "Špatná diakritika - znak automatického útoku"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: info@ceskasporitelna-bezpecnost.cz",
+                subject: "Bezpečnostní upozornění - Neautorizovaný přístup",
+                message: "Vážený kliente,\n\nZaznamenali jsme podezřelou aktivitu na Vašem účtu. Z důvodu bezpečnosti jsme Váš účet dočasně omezili.\n\nPro obnovení přístupu klikněte zde:\nhttps://www.csas-overeni-klienta.cz/prihlaseni\n\nV případě neprovedení ověření do 48 hodin bude Váš účet trvale zablokován.\n\nČeská spořitelna, a.s.",
+                isPhishing: true,
+                explanation: "Toto je PHISHING útok napodobující Českou spořitelnu. Varovné signály: Falešná doména (ceskasporitelna-bezpecnost.cz i csas-overeni-klienta.cz nejsou oficiální domény ČS), časový tlak (48 hodin), hrozba zablokování účtu, odkaz na přihlášení. Česká spořitelna používá doménu csas.cz a nikdy nežádá přihlášení přes odkazy v emailu.",
+                highlights: [
+                    {text: "ceskasporitelna-bezpecnost.cz", type: "red", reason: "Falešná doména - oficiální je csas.cz"},
+                    {text: "csas-overeni-klienta.cz", type: "red", reason: "Další falešná doména pro phishing"},
+                    {text: "do 48 hodin", type: "red", reason: "Umělý časový tlak"},
+                    {text: "trvale zablokován", type: "red", reason: "Výhružky k vyvolání paniky"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: servis@csas.cz",
+                subject: "Potvrzení platby kartou",
+                message: "Dobrý den,\n\nInformujeme Vás o provedené transakci:\n\nČástka: 1 245 Kč\nObchodník: Tesco Praha 5\nDatum: 19.10.2025 14:23\nKarta: **** 5678\n\nPokud jste tuto transakci neprovedli, kontaktujte nás na lince 800 207 207 nebo v internetovém bankovnictví GEORGE.\n\nČeská spořitelna, a.s.",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ email. Oficiální doména České spořitelny (csas.cz), obsahuje konkrétní detaily transakce, poskytuje oficiální kontaktní informace (známá non-stop linka 800 207 207), nezahrnuje žádné podezřelé odkazy na přihlášení, nevytváří umělou naléhavost.",
+                highlights: [
+                    {text: "servis@csas.cz", type: "green", reason: "Oficiální doména České spořitelny"},
+                    {text: "800 207 207", type: "green", reason: "Oficiální non-stop linka ČS"},
+                    {text: "GEORGE", type: "green", reason: "Oficiální název internetového bankovnictví"}
+                ]
+            },
+            {
+                type: "SMS",
+                sender: "Od: CSOB",
+                subject: "",
+                message: "CSOB: Vase platba 850Kc byla zamitnuta. Aktualizujte udaje karty: csob-aktivace.info/verify",
+                isPhishing: true,
+                explanation: "Toto je PHISHING útok napodobující ČSOB. Varovné signály: Neoficiální doména (csob-aktivace.info místo csob.cz), chybějící diakritika, žádost o 'aktualizaci údajů' přes odkaz, vytváření dojmu problému s platbou. ČSOB nikdy neposílá odkazy na aktualizaci údajů karty přes SMS.",
+                highlights: [
+                    {text: "csob-aktivace.info", type: "red", reason: "Falešná doména - není csob.cz"},
+                    {text: "zamitnuta", type: "red", reason: "Vytváření pocitu problému"},
+                    {text: "Aktualizujte udaje", type: "red", reason: "Žádost o citlivé údaje přes odkaz"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: hr@vasefirma.cz",
+                subject: "Připomínka: Dokončete Vaše Roční Školení",
+                message: "Vážený kolego/kolegyně,\n\nToto je připomínka k dokončení vašeho ročního povinného školení do 31. října 2025.\n\nPro přístup k portálu se přihlaste na firemní intranet a přejděte do sekce Vzdělávání > Povinná školení.\n\nPokud máte dotazy, kontaktujte HR na lince 5500.\n\nS pozdravem,\nPersonální oddělení",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ email. Oficiální firemní doména, směřuje na interní systémy místo externích odkazů, rozumný časový rámec, profesionální komunikace, poskytuje interní kontakt.",
+                highlights: [
+                    {text: "hr@vasefirma.cz", type: "green", reason: "Oficiální firemní doména"},
+                    {text: "firemní intranet", type: "green", reason: "Odkaz na interní systém"},
+                    {text: "lince 5500", type: "green", reason: "Interní kontaktní číslo"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: podpora@moneta-banka.cz",
+                subject: "Aktivace nového zabezpečení",
+                message: "Vážený kliente,\n\nZ důvodu zvýšení bezpečnosti je nutné aktivovat nové zabezpečení vašeho účtu.\n\nKlikněte zde pro aktivaci: moneta-aktivace-zabezpeceni.com/login\n\nBez aktivace do 24 hodin nebude možné provádět platby.\n\nMoneyPank Team",
+                isPhishing: true,
+                explanation: "Toto je PHISHING. Varovné signály: Doména odesílatele neodpovídá odkazu (moneta-banka.cz vs moneta-aktivace-zabezpeceni.com), časový tlak (24 hodin), překlep v podpisu ('MoneyPank' místo 'Moneta'), hrozba omezením služeb. Moneta Money Bank používá doménu moneta.cz.",
+                highlights: [
+                    {text: "moneta-banka.cz", type: "red", reason: "Podezřelá doména - oficiální je moneta.cz"},
+                    {text: "moneta-aktivace-zabezpeceni.com", type: "red", reason: "Falešná phishingová doména"},
+                    {text: "do 24 hodin", type: "red", reason: "Umělý časový tlak"},
+                    {text: "MoneyPank", type: "red", reason: "Překlep - není Moneta Money Bank"}
+                ]
+            },
+            {
+                type: "SMS",
+                sender: "Od: +420-XXX-XXX-XXX",
+                subject: "",
+                message: "Ahoj! Tady máma. Mám nový telefon a ztratila jsem všechny kontakty. Můžeš si uložit toto číslo? Jak se máš? 😊",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ zpráva. Přirozený konverzační tón, žádný tlak, žádné odkazy ani žádosti o peníze. I když je dobré ověřit nová čísla jiným způsobem (zavolat na staré číslo), samotná zpráva nevykazuje typické znaky phishingu.",
+                highlights: [
+                    {text: "Ahoj! Tady máma.", type: "green", reason: "Přirozený osobní tón"},
+                    {text: "Jak se máš? 😊", type: "green", reason: "Běžná konverzace bez tlaku"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: bezpecnost@kb-mail.cz",
+                subject: "Nutná aktualizace bezpečnostních údajů",
+                message: "Vážený kliente Komerční banky,\n\nDle nové směrnice EU musíte aktualizovat své bezpečnostní údaje.\n\nAktualizovat údaje: https://kb-aktualizace.com/client-update\n\nPokud neprovedete do 72 hodin, váš přístup k MojeBance bude omezen.\n\nKomerční banka, a.s.",
+                isPhishing: true,
+                explanation: "Toto je PHISHING napodobující KB. Varovné signály: Podezřelá doména odesílatele (kb-mail.cz není oficiální), falešná doména pro aktualizaci (kb-aktualizace.com), odkaz na EU směrnici bez konkrétních detailů, časový tlak, hrozba omezením. Komerční banka používá doménu kb.cz a nikdy nežádá aktualizaci údajů přes email odkazy.",
+                highlights: [
+                    {text: "kb-mail.cz", type: "red", reason: "Falešná doména - oficiální je kb.cz"},
+                    {text: "kb-aktualizace.com", type: "red", reason: "Phishingová doména"},
+                    {text: "do 72 hodin", type: "red", reason: "Časový tlak"},
+                    {text: "směrnice EU", type: "red", reason: "Vágní reference pro legitimitu"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: team@github.com",
+                subject: "Bezpečnostní upozornění: Nové přihlášení z Chrome na Windows",
+                message: "Ahoj,\n\nByl zjištěn nový pokus o přihlášení k vašemu účtu:\n\n- Zařízení: Chrome na Windows\n- Lokace: Praha, Česká republika\n- Čas: 19. října 2025, 10:35 UTC\n\nPokud jste to byli vy, není třeba žádná akce. Pokud jste to nebyli vy, zabezpečte svůj účet okamžitě:\n\nZkontrolujte nastavení bezpečnosti účtu: https://github.com/settings/security\n\nGitHub Security",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ upozornění. Oficiální doména GitHubu (github.com), konkrétní detaily přihlášení, odkaz na oficiální GitHub nastavení, profesionální formát, žádný tlak na okamžitou akci.",
+                highlights: [
+                    {text: "team@github.com", type: "green", reason: "Oficiální doména GitHub"},
+                    {text: "https://github.com/settings/security", type: "green", reason: "Oficiální GitHub URL"},
+                    {text: "Praha, Česká republika", type: "green", reason: "Konkrétní lokace"}
+                ]
+            },
+            {
+                type: "SMS",
+                sender: "Od: AirBank",
+                subject: "",
+                message: "AirBank: Pro dokonceni platby 3500 Kc prosim potvrdte transakci: airbank-potvrzeni.net/pay?id=AB847392",
+                isPhishing: true,
+                explanation: "Toto je PHISHING napodobující Air Bank. Varovné signály: Falešná doména (airbank-potvrzeni.net místo airbank.cz), chybějící diakritika, žádost o potvrzení transakce přes odkaz, podezřelý parametr v URL. Air Bank nikdy nežádá o potvrzování plateb přes SMS odkazy.",
+                highlights: [
+                    {text: "airbank-potvrzeni.net", type: "red", reason: "Falešná doména - není airbank.cz"},
+                    {text: "dokonceni", type: "red", reason: "Chybějící diakritika"},
+                    {text: "potvrdte", type: "red", reason: "Žádost o akci přes podezřelý odkaz"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: info@mall.cz",
+                subject: "Váš nákup byl úspěšně odeslán - objednávka #M789456123",
+                message: "Dobrý den,\n\nDěkujeme za Váš nákup na Mall.cz.\n\nObjednávka č.: M789456123\nZboží: Notebook Lenovo IdeaPad\nCena: 15 990 Kč\nOdhadované doručení: 21. - 23. října 2025\n\nSledovat zásilku můžete v sekci Moje objednávky po přihlášení na www.mall.cz\n\nTým Mall.cz",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ potvrzení objednávky. Oficiální doména Mall.cz, konkrétní číslo objednávky v správném formátu, realistické detaily produktu a ceny, odkaz na oficiální web pro sledování, rozumný časový rámec doručení, žádné podezřelé odkazy ani tlak.",
+                highlights: [
+                    {text: "info@mall.cz", type: "green", reason: "Oficiální doména Mall.cz"},
+                    {text: "#M789456123", type: "green", reason: "Správný formát čísla objednávky"},
+                    {text: "www.mall.cz", type: "green", reason: "Odkaz na oficiální web"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: ceo@vasefirma-info.com",
+                subject: "URGENTNÍ: Potřebuji Vaši Pomoc",
+                message: "Ahoj,\n\nJsem na důležité schůzce a vybila se mi baterie. Potřebuji urgentně zakoupit 5x dárkovou kartu Google Play po 5 000 Kč pro klientský dárek. Prosím kupte je a pošlete mi kódy co nejdříve. Vrátím vám to ještě dnes.\n\nVelmi urgentní!\n\nMichael Novák\nGenerální ředitel",
+                isPhishing: true,
+                explanation: "Toto je PHISHING (CEO podvod). Varovné signály: Podezřelá doména (vasefirma-info.com pravděpodobně není oficiální), neobvyklý požadavek na nákup dárkových karet, extrémní urgence, neformální komunikační styl pro vedení, žádná možnost ověření. Dárkové karty jsou oblíbený cíl podvodníků, protože nejdou vysledovat.",
+                highlights: [
+                    {text: "vasefirma-info.com", type: "red", reason: "Podezřelá doména"},
+                    {text: "URGENTNÍ", type: "red", reason: "Extrémní tlak"},
+                    {text: "dárkovou kartu Google Play po 5 000 Kč", type: "red", reason: "Typický podvodný požadavek"},
+                    {text: "Velmi urgentní!", type: "red", reason: "Opakovaný tlak"}
+                ]
+            },
+            {
+                type: "SMS",
+                sender: "Od: Raiffeisen",
+                subject: "",
+                message: "Raiffeisenbank: Detekována podezrela transakce 8900 Kc. Overeni nutne do 2 hodin: rb-overeni.com/verify?code=RB4783",
+                isPhishing: true,
+                explanation: "Toto je PHISHING napodobující Raiffeisenbank. Varovné signály: Falešná doména (rb-overeni.com místo rb.cz nebo raiffeisenbank.cz), chybějící diakritika ('Overeni' místo 'Ověření'), extrémně krátký časový limit (2 hodiny), podezřelá URL s parametry. Banka nikdy nepožaduje ověření transakcí přes SMS odkazy.",
+                highlights: [
+                    {text: "rb-overeni.com", type: "red", reason: "Falešná doména - není rb.cz"},
+                    {text: "podezrela", type: "red", reason: "Chybějící diakritika"},
+                    {text: "do 2 hodin", type: "red", reason: "Extrémní časový tlak"},
+                    {text: "Overeni nutne", type: "red", reason: "Špatná čeština a urgence"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: info@alza.cz",
+                subject: "Dodání Vaší objednávky #2510198456",
+                message: "Dobrý den,\n\nVaše objednávka #2510198456 byla předána dopravci Zásilkovna.\n\nObsah: Samsung Galaxy A54, 128GB\nCena: 8 490 Kč\nVyzvednutí: Zásilkovna - Hvězdova 2, Praha 4\n\nPro sledování zásilky použijte kód: Z847392845\n\nOznamovací SMS obdržíte při dodání na výdejní místo.\n\nAlza.cz - Když nákup, tak Alza!",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ email od Alzy. Oficiální doména (alza.cz), správný formát čísla objednávky, konkrétní detaily produktu a ceny, realistický kód pro sledování, uvedení konkrétní pobočky Zásilkovny, charakteristický Alza slogan, žádné podezřelé odkazy.",
+                highlights: [
+                    {text: "info@alza.cz", type: "green", reason: "Oficiální doména Alza.cz"},
+                    {text: "#2510198456", type: "green", reason: "Správný formát čísla objednávky Alzy"},
+                    {text: "Z847392845", type: "green", reason: "Realistický sledovací kód Zásilkovny"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: netflix@netflix-support.info",
+                subject: "Vaše platba za Netflix se nezdařila",
+                message: "Dobrý den,\n\nVaše nedávná platba byla zamítnuta. Aktualizujte své platební údaje, aby nedošlo k přerušení služby.\n\nAktualizovat platební metodu: https://netflix-platba.info/update\n\nVáš účet bude pozastaven do 48 hodin, pokud nebude aktualizován.\n\nNetflix Support Team",
+                isPhishing: true,
+                explanation: "Toto je PHISHING napodobující Netflix. Varovné signály: Falešná doména (netflix-support.info místo netflix.com), další falešná doména v odkazu (netflix-platba.info), časový tlak (48 hodin), žádost o aktualizaci platby přes odkaz. Netflix směřuje uživatele k aktualizaci plateb pouze přes jejich oficiální web/aplikaci.",
+                highlights: [
+                    {text: "netflix@netflix-support.info", type: "red", reason: "Falešná doména - není netflix.com"},
+                    {text: "netflix-platba.info", type: "red", reason: "Phishingová doména"},
+                    {text: "do 48 hodin", type: "red", reason: "Umělý časový tlak"}
+                ]
+            },
+            {
+                type: "SMS",
+                sender: "Od: +420-731-XXX-XXX",
+                subject: "",
+                message: "Dobre odpoledne, jsem Jan z firmy XY. Volal jsem Vam ohledne nabidky na investice. Muzete se ozvat zpatky? Dekuji",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ zpráva. Přirozený tón, konkrétní jméno osoby a firmy, žádost o zpětné kontaktování (ne okamžitá akce), žádné odkazy ani žádosti o peníze nebo osobní údaje. Je to běžná obchodní komunikace, i když chybí diakritika (časté u SMS).",
+                highlights: [
+                    {text: "Jan z firmy XY", type: "green", reason: "Konkrétní identifikace osoby"},
+                    {text: "Muzete se ozvat zpatky?", type: "green", reason: "Žádost o kontakt, ne okamžitá akce"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: apple-support@icloud-verifikace.com",
+                subject: "Apple ID - Bezpečnostní varování",
+                message: "Vážený uživateli Apple,\n\nVaše Apple ID bylo použito k přihlášení na novém zařízení v neznámé lokaci.\n\nPokud jste to nebyli vy, zabezpečte svůj účet okamžitě:\n\nhttps://icloud-verifikace.com/secure-account\n\nMáte 24 hodin na ověření, jinak bude váš účet trvale deaktivován.\n\nApple Security Team",
+                isPhishing: true,
+                explanation: "Toto je PHISHING napodobující Apple. Varovné signály: Falešná doména (icloud-verifikace.com místo apple.com nebo icloud.com), časový tlak (24 hodin), hrozba deaktivací účtu, žádost o zabezpečení přes podezřelý odkaz. Apple posílá bezpečnostní upozornění přes oficiální systém a nikdy nehrozí deaktivací účtu.",
+                highlights: [
+                    {text: "apple-support@icloud-verifikace.com", type: "red", reason: "Falešná doména - není apple.com"},
+                    {text: "icloud-verifikace.com", type: "red", reason: "Phishingová doména"},
+                    {text: "24 hodin", type: "red", reason: "Časový tlak"},
+                    {text: "trvale deaktivován", type: "red", reason: "Výhružka"}
+                ]
+            },
+            {
+                type: "EMAIL",
+                sender: "Od: podpora@csob.cz",
+                subject: "Informace o blokaci platební karty",
+                message: "Vážená paní/Vážený pane,\n\nInformujeme Vás, že jsme dne 19.10.2025 v 11:30 zablokovali Vaši platební kartu **** 4523 z důvodu jejího ztracení/odcizení dle Vašeho oznámení.\n\nNová karta Vám bude doručena do 5 pracovních dnů na Vaši korespondenční adresu.\n\nV případě dotazů kontaktujte ČSOB Servisní linku: +420 495 800 777 (nonstop).\n\nS pozdravem,\nČSOB, a.s.",
+                isPhishing: false,
+                explanation: "Toto je LEGITIMNÍ email od ČSOB. Oficiální doména (csob.cz), konkrétní informace o kartě (částečně skryté číslo), datum a čas akce, realistický postup (doručení nové karty), oficiální telefonní číslo non-stop linky, profesionální formát, žádné odkazy na přihlášení.",
+                highlights: [
+                    {text: "podpora@csob.cz", type: "green", reason: "Oficiální doména ČSOB"},
+                    {text: "**** 4523", type: "green", reason: "Bezpečné zobrazení čísla karty"},
+                    {text: "+420 495 800 777", type: "green", reason: "Oficiální ČSOB servisní linka"}
+                ]
+            },
+            {
+                type: "SMS",
+                sender: "Od: DPD_CZ",
+                subject: "",
+                message: "Vas balicek je pripraven k doruceni. Sledujte zasilku zde: dpd-sledovani.net/track/CZ8473926 Doruceni zitra.",
+                isPhishing: true,
+                explanation: "Toto je PHISHING napodobující DPD. Varovné signály: Falešná doména (dpd-sledovani.net místo dpd.cz nebo dpd.com), chybějící diakritika u všech slov, podezřelý formát URL se sledovacím kódem. DPD používá oficiální domény a jejich SMS obsahují odkazy na dpd.com nebo dpd.cz.",
+                highlights: [
+                    {text: "dpd-sledovani.net", type: "red", reason: "Falešná doména - není dpd.cz ani dpd.com"},
+                    {text: "Vas balicek", type: "red", reason: "Chybějící diakritika u všech slov"},
+                    {text: "pripraven k doruceni", type: "red", reason: "Systematicky chybějící háčky a čárky"}
+                ]
+            }
+        ];
+
+        // Quiz questions data
+        const quizQuestions = [
+            {
+                question: "Co je to phishing?",
+                options: [
+                    "Legální marketingová technika",
+                    "Podvodná technika k získání citlivých informací",
+                    "Typ antivirového programu",
+                    "Způsob šifrování dat"
+                ],
+                correct: 1,
+                explanation: "Phishing je podvodná technika, při které se útočníci vydávají za důvěryhodné subjekty, aby získali citlivé informace jako hesla, čísla karet nebo osobní údaje."
+            },
+            {
+                question: "Který z těchto znaků je typický pro phishingový email?",
+                options: [
+                    "Profesionální grafika a formátování",
+                    "Urgentní výzvy k okamžité akci",
+                    "Osobní oslovení jménem",
+                    "Detailní kontaktní informace"
+                ],
+                correct: 1,
+                explanation: "Phishingové emaily často vytváří umělý pocit naléhavosti (např. 'Váš účet bude zablokován do 24 hodin'), aby donutily oběti jednat rychle bez rozmyšlení."
+            },
+            {
+                question: "Na co byste se měli primárně podívat při kontrole emailu od banky?",
+                options: [
+                    "Velikost písma",
+                    "Doménu odesílatele (např. @banka.cz)",
+                    "Barvu loga",
+                    "Délku zprávy"
+                ],
+                correct: 1,
+                explanation: "Doména odesílatele je klíčový indikátor. Podvodníci často používají podobné domény (např. @banka-security.com místo @banka.cz)."
+            },
+            {
+                question: "Co byste měli udělat, když obdržíte SMS o blokaci bankovního účtu s odkazem?",
+                options: [
+                    "Okamžitě kliknout na odkaz",
+                    "Zavolat na oficiální číslo banky pro ověření",
+                    "Poslat zprávu zpět",
+                    "Ignorovat všechny zprávy od banky"
+                ],
+                correct: 1,
+                explanation: "Nikdy neklikejte na odkazy v podezřelých zprávách. Vždy kontaktujte instituci přes oficiální kanály (číslo z jejich webu nebo z karty)."
+            },
+            {
+                question: "Která doména je legitimní pro Českou spořitelnu?",
+                options: [
+                    "ceskasporitelna-security.cz",
+                    "csas.cz",
+                    "cs-sporitelna.com",
+                    "ceskasp.net"
+                ],
+                correct: 1,
+                explanation: "Oficiální doména České spořitelny je csas.cz. Všechny ostatní jsou pravděpodobně phishingové pokusy."
+            },
+            {
+                question: "Co je typosquatting?",
+                options: [
+                    "Typ šifrování",
+                    "Používání domén s překlepy (např. paypa1.com místo paypal.com)",
+                    "Nástroj pro detekci phishingu",
+                    "Bezpečnostní protokol"
+                ],
+                correct: 1,
+                explanation: "Typosquatting je technika, kdy útočníci registrují domény s drobnými překlepy nebo záměnami písmen (např. '1' místo 'l'), aby zmátli uživatele."
+            },
+            {
+                question: "Proč podvodníci často žádají o nákup dárkových karet?",
+                options: [
+                    "Jsou levné",
+                    "Jsou nesledovatelné a snadno přenosné",
+                    "Jsou populární dárky",
+                    "Mají vysokou hodnotu"
+                ],
+                correct: 1,
+                explanation: "Dárkové karty jsou oblíbeným cílem podvodníků, protože po prozrazení kódu jsou okamžitě použitelné, nesledovatelné a prakticky nelze transakci vrátit."
+            },
+            {
+                question: "Která z těchto praktik je bezpečná?",
+                options: [
+                    "Klikat na odkazy v emailech od banky",
+                    "Ukládat hesla do poznámek v telefonu",
+                    "Ručně zadat URL banky do prohlížeče",
+                    "Používat stejné heslo všude"
+                ],
+                correct: 2,
+                explanation: "Nejbezpečnější je ručně zadat URL do prohlížeče nebo používat záložky. Tím se vyhnete riziku kliknutí na podvodný odkaz."
+            },
+            {
+                question: "Co znamená 'CEO podvod' (CEO fraud)?",
+                options: [
+                    "Krádež identity generálního ředitele",
+                    "Email, který se vydává za vedení firmy a žádá urgentní platbu",
+                    "Hacknutí CEO účtu na sociálních sítích",
+                    "Únos dat od CEO"
+                ],
+                correct: 1,
+                explanation: "CEO podvod (Business Email Compromise) je typ útoku, kdy se podvodník vydává za vedení firmy a žádá zaměstnance o urgentní převod peněz nebo nákup dárkových karet."
+            },
+            {
+                question: "Jak poznáte legitimní bezpečnostní upozornění od skutečné firmy?",
+                options: [
+                    "Vždy obsahuje odkazy na přihlášení",
+                    "Je napsáno VELKÝMI PÍSMENY",
+                    "Směřuje vás na oficiální web/aplikaci, ne na odkaz v emailu",
+                    "Vyžaduje okamžitou akci do 1 hodiny"
+                ],
+                correct: 2,
+                explanation: "Legitimní firmy nikdy nepožadují přihlašovací údaje přes email a vždy vás směřují k přihlášení přes jejich oficiální web nebo aplikaci, ne přes odkaz v emailu."
+            }
+        ];
+        
+        let correct = 0;
+        let incorrect = 0;
+        let answered = 0;
+        
+        function highlightText(text, highlights) {
+            let result = text;
+            highlights.forEach(h => {
+                const regex = new RegExp(h.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                result = result.replace(regex, `<span class="highlight highlight-${h.type}" title="${h.reason}">${h.text}</span>`);
+            });
+            return result;
+        }
+        
+        function renderExamples() {
+            const container = document.getElementById('examples');
+            examples.forEach((example, index) => {
+                const card = document.createElement('div');
+                card.className = 'example-card';
+                card.id = `example-${index}`;
+                
+                let contentHTML = '';
+                if (example.sender) {
+                    contentHTML += `<div class="sender" id="sender-${index}">${example.sender}</div>`;
+                }
+                if (example.subject) {
+                    contentHTML += `<div class="subject" id="subject-${index}">${example.subject}</div>`;
+                }
+                contentHTML += `<div class="message" id="message-${index}">${example.message}</div>`;
+                
+                card.innerHTML = `
+                    <div class="example-header">
+                        <span class="example-type">${example.type}</span>
+                        <span class="example-number">Příklad ${index + 1} z 20</span>
+                    </div>
+                    <div class="example-content">
+                        ${contentHTML}
+                    </div>
+                    <div class="buttons">
+                        <button class="legit-btn" onclick="checkAnswer(${index}, false)">✓ Legitimní</button>
+                        <button class="phishing-btn" onclick="checkAnswer(${index}, true)">⚠️ Phishing</button>
+                    </div>
+                    <div class="result" id="result-${index}">
+                        <div class="explanation"></div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        function checkAnswer(index, userSaysPhishing) {
+            const example = examples[index];
+            const resultDiv = document.getElementById(`result-${index}`);
+            const card = document.getElementById(`example-${index}`);
+            const buttons = card.querySelectorAll('button');
+            
+            buttons.forEach(btn => btn.disabled = true);
+            
+            // Apply highlights
+            if (example.highlights && example.highlights.length > 0) {
+                const senderEl = document.getElementById(`sender-${index}`);
+                const subjectEl = document.getElementById(`subject-${index}`);
+                const messageEl = document.getElementById(`message-${index}`);
+                
+                if (senderEl) {
+                    senderEl.innerHTML = highlightText(example.sender, example.highlights);
+                }
+                if (subjectEl) {
+                    subjectEl.innerHTML = highlightText(example.subject, example.highlights);
+                }
+                if (messageEl) {
+                    messageEl.innerHTML = highlightText(example.message, example.highlights);
+                }
+            }
+            
+            const isCorrect = userSaysPhishing === example.isPhishing;
+            
+            if (isCorrect) {
+                correct++;
+                resultDiv.className = 'result correct show';
+                resultDiv.innerHTML = `<div>✓ Správně!</div><div class="explanation">${example.explanation}</div>`;
+            } else {
+                incorrect++;
+                resultDiv.className = 'result incorrect show';
+                resultDiv.innerHTML = `<div>✗ Špatně</div><div class="explanation">${example.explanation}</div>`;
+            }
+            
+            answered++;
+            updateScore();
+            
+            if (answered === examples.length) {
+                setTimeout(showFinish, 1000);
+            }
+        }
+        
+        function updateScore() {
+            document.getElementById('correct').textContent = correct;
+            document.getElementById('incorrect').textContent = incorrect;
+            document.getElementById('remaining').textContent = examples.length - answered;
+        }
+        
+        function showFinish() {
+            const panel = document.getElementById('finishPanel');
+            const score = document.getElementById('finalScore');
+            const message = document.getElementById('finalMessage');
+            
+            const percentage = (correct / examples.length) * 100;
+            score.textContent = `${correct} / ${examples.length}`;
+            
+            if (percentage >= 90) {
+                message.textContent = "Výborně! Jste expert na odhalování phishingových útoků!";
+            } else if (percentage >= 70) {
+                message.textContent = "Skvělá práce! Máte dobrou znalost phishingových taktik.";
+            } else if (percentage >= 50) {
+                message.textContent = "Není to špatné! Pokračujte v tréninku pro zlepšení dovedností.";
+            } else {
+                message.textContent = "Pokračujte v učení! Projděte si vysvětlení pro pochopení varovných signálů.";
+            }
+            
+            panel.classList.add('show');
+            panel.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        renderExamples();
+
+        // Quiz state
+        let currentQuizQuestion = 0;
+        let quizCorrectAnswers = 0;
+        let quizAnswered = false;
+
+        // Initialize quiz
+        function initQuiz() {
+            renderQuizQuestion();
+        }
+
+        // Render current quiz question
+        function renderQuizQuestion() {
+            const questionData = quizQuestions[currentQuizQuestion];
+            const questionContainer = document.getElementById('quizQuestion');
+            
+            let optionsHTML = '';
+            questionData.options.forEach((option, index) => {
+                optionsHTML += `
+                    <div class="quiz-option" onclick="selectQuizOption(${index})">
+                        ${option}
+                    </div>
+                `;
+            });
+            
+            questionContainer.innerHTML = `
+                <h3>${questionData.question}</h3>
+                <div class="quiz-options">
+                    ${optionsHTML}
+                </div>
+            `;
+            
+            document.getElementById('currentQuestion').textContent = currentQuizQuestion + 1;
+            document.getElementById('quizFeedback').classList.remove('show');
+            document.getElementById('quizNextBtn').classList.remove('show');
+            quizAnswered = false;
+        }
+
+        // Select quiz option
+        function selectQuizOption(selectedIndex) {
+            if (quizAnswered) return;
+            
+            const questionData = quizQuestions[currentQuizQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('quizFeedback');
+            const nextBtn = document.getElementById('quizNextBtn');
+            
+            quizAnswered = true;
+            
+            // Disable all options
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === questionData.correct) {
+                    option.classList.add('correct');
+                }
+                if (index === selectedIndex && selectedIndex !== questionData.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Show feedback
+            const isCorrect = selectedIndex === questionData.correct;
+            if (isCorrect) {
+                quizCorrectAnswers++;
+                feedback.className = 'quiz-feedback correct-feedback show';
+                feedback.innerHTML = `<strong>✓ Správně!</strong><p>${questionData.explanation}</p>`;
+            } else {
+                feedback.className = 'quiz-feedback incorrect-feedback show';
+                feedback.innerHTML = `<strong>✗ Špatně</strong><p>${questionData.explanation}</p>`;
+            }
+            
+            // Update score
+            document.getElementById('quizScore').textContent = quizCorrectAnswers;
+            
+            // Show next button or finish
+            nextBtn.classList.add('show');
+            if (currentQuizQuestion === quizQuestions.length - 1) {
+                nextBtn.textContent = 'Zobrazit Výsledky';
+            }
+        }
+
+        // Next question or show results
+        document.getElementById('quizNextBtn').addEventListener('click', function() {
+            currentQuizQuestion++;
+            
+            if (currentQuizQuestion < quizQuestions.length) {
+                renderQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        });
+
+        // Show quiz results
+        function showQuizResults() {
+            document.getElementById('quizQuestion').style.display = 'none';
+            document.getElementById('quizFeedback').style.display = 'none';
+            document.getElementById('quizNextBtn').style.display = 'none';
+            document.querySelector('.quiz-progress').style.display = 'none';
+            
+            const results = document.getElementById('quizResults');
+            const score = document.getElementById('quizFinalScore');
+            const message = document.getElementById('quizResultMessage');
+            
+            const percentage = (quizCorrectAnswers / quizQuestions.length) * 100;
+            score.textContent = `${quizCorrectAnswers} / ${quizQuestions.length}`;
+            
+            if (percentage >= 80) {
+                message.textContent = "Výborně! Máte skvělé základní znalosti o phishingu. Nyní si procvičte rozpoznávání skutečných příkladů.";
+            } else if (percentage >= 60) {
+                message.textContent = "Dobrá práce! Máte solidní základy. Praktické příklady vám pomohou zlepšit vaše dovednosti.";
+            } else {
+                message.textContent = "Věnujte pozornost praktickým příkladům - naučí vás, jak rozpoznat phishing v reálných situacích.";
+            }
+            
+            results.classList.add('show');
+        }
+
+        // Continue to examples
+        document.getElementById('quizContinueBtn').addEventListener('click', function() {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('examples').classList.remove('examples-locked');
+            document.getElementById('examples').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Initialize quiz on page load
+        initQuiz();
+    </script>
+</body>
+</html>
